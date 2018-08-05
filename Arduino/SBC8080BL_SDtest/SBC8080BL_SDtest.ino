@@ -45,6 +45,7 @@ void setup() {
 
   // SD card init
   delay(500);
+  pinMode(10, OUTPUT);
   SD.begin();
   delay(500);
 }
