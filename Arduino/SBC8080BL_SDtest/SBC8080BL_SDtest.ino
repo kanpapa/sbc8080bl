@@ -44,10 +44,8 @@ void setup() {
   OCR1A = 51; //153.9kHz
 
   // SD card init
-  delay(500);
   pinMode(10, OUTPUT);
   SD.begin();
-  delay(500);
 }
 
 // Test program
@@ -127,7 +125,7 @@ void store(word adrs, byte data) {
 }
 
 //Intel HEX format
-boolean setupHex() {
+void setupHex() {
   byte len;
   word adrs;
   byte type;
@@ -144,9 +142,7 @@ boolean setupHex() {
       getByte(); // checksum not care
     } else if (type == 1) { // EOF
       getByte(); // checksum not care
-      return true; //break;
-    } else {
-      return false;  //unknown type
+      return; //break;
     }
   }
 }
@@ -176,25 +172,12 @@ void loop() {
 
   // set 8080 memory
   word address;
-  boolean err_flg = false;
-
-  delay(100); //wait for reset
   
-  if (SD.exists("INITPROG.HEX")) {  //exist HEX file
-    fp = SD.open("INITPROG.HEX", FILE_READ);  //file open
-    if (fp) {
-      if (!setupHex()) { //write to RAM
-        err_flg = true;
-      }
-    } else {
-       err_flg = true;
-    }
-    fp.close(); //file close
+  fp = SD.open("INITPROG.HEX", FILE_READ);  //file open
+  if (fp) {
+      setupHex();  //write to RAM
+      fp.close(); //file close
   } else {  //file not found
-    err_flg = true;
-  }
-
-  if (err_flg) {
     // set test program
     for(address = 0; address < 0x30; address++){
       store(address, code[address]);
